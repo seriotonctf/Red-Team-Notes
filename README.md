@@ -1,6 +1,6 @@
 # Red-Team-Notes
-Some red team cheat sheets I put together. You can find them on my blog [serioton](https://seriotonctf.github.io/).
+Some red team cheat sheets I put together. You can also find them on my blog [serioton](https://seriotonctf.github.io/).
 
-You can also check out other cheat sheets I've made: 
+Check out other cheat sheets I've made: 
 - [cme nxc cheat sheet](https://github.com/seriotonctf/cme-nxc-cheat-sheet)
 - [my cheat sheet](https://github.com/seriotonctf/my-cheat-sheet)
