@@ -31,8 +31,13 @@ bloodyAD --host $dc -d $domain -u $username -p $password remove uac $target_user
 bloodyAD --host $dc -d $domain -u $username -p $password add uac $target_username -f TRUSTED_TO_AUTH_FOR_DELEGATION
 ```
 ### Notes
-To use Kerberos, obtain a TGT and then pass `-k` instead of providing a username and password
+- To use Kerberos, obtain a TGT and then pass `-k` instead of providing a username and password
+- You can pass a hash instead of the password
 ### Resources
+- https://github.com/CravateRouge/bloodyAD/wiki/User-Guide
+- https://www.thehacker.recipes/
+- https://0xdf.gitlab.io/2024/03/30/htb-rebound.html
+### Machines To Practice
 - Redelegate (Vulnlab)
 - Vintage (HackTheBox)
 - Infiltrator (HackTheBox)
