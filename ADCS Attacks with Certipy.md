@@ -2,7 +2,6 @@
 - [ESC1](#esc1)
 - [ESC3](#esc3)
 - [ESC4](#esc4)
-- [ESC6](#esc6)
 - [ESC7](#esc7)
 - [ESC8](#esc8)
 - [ESC9](#esc9)
