@@ -138,7 +138,7 @@ DefaultAccount:503:aad3b435b51404eeaad3b435b51404ee:<REDACTED>:::
 - https://www.thehacker.recipes/a-d/movement/kerberos/delegations/rbcd#rbcd-on-spn-less-users
 - https://www.tiraniddo.dev/2022/05/exploiting-rbcd-using-normal-user.html
 - https://www.youtube.com/watch?v=DH4dFwNTb9A&ab_channel=vulnlab
-- https://seriotonctf.github.io/2024/07/14/Phantom-Vulnlab/
+- https://seriotonctf.github.io/Phantom-Vulnlab/
 # Vulnlab Machines/Chains
 - Phantom
 - Heron
