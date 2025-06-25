@@ -203,6 +203,7 @@ certipy auth -pfx administrator.pfx -dc-ip ip -domain domain
 
 # Resources
 - https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation
+- https://harmj0y.medium.com/certified-pre-owned-a22285fc0a3f
 - https://mayfly277.github.io/posts/GOADv2-pwning-part6/
 - https://mayfly277.github.io/posts/ADCS-part14/
 - https://ppn.snovvcrash.rocks/pentest/infrastructure/ad/ad-cs-abuse
