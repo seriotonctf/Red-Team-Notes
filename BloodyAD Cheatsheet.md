@@ -67,8 +67,27 @@ bloodyAD --host $dc -d $domain -u $username -p $password add shadowCredentials $
 ```
 bloodyAD --host $dc -d $domain -u $username -p $password set object $target servicePrincipalName -v 'domain/meow'
 ```
+### Find Deleted Objects
+```
+bloodyAD --host $dc -d $domain -u $username -p $password get writable --include-del
+```
+### Extended Search Operations
+```
+bloodyAD --host $dc -d $domain -u $username -p $password get search -h
+```
+e.g. 
+```
+-c 1.2.840.113556.1.4.2064 -c 1.2.840.113556.1.4.2065 to display tombstoned
+```
+```
+bloodyAD --host $dc -d $domain -u $username -p $password -k get search -c 1.2.840.113556.1.4.2064 -c 1.2.840.113556.1.4.2065
+```
+### Restore a deleted object
+```
+bloodyAD --host $dc -d $domain -u $username -p $password -k set restore $user_to_restore
+``` 
 ### Notes
-- To use Kerberos, obtain a TGT, export it, and then pass `-k` instead of providing a username and password
+- Pass `-k` to use kerberos authentication
 - You can pass a user hash instead of a password using `-p :hash` 
 - Specify format for '--password' or '-k <keyfile>' using `-f`, e.g. `-f rc4`
 ### Resources
@@ -83,3 +102,5 @@ bloodyAD --host $dc -d $domain -u $username -p $password set object $target serv
 - Rebound (HackTheBox)
 - Absolute (HackTheBox)
 - Certified (HackTheBox)
+- TombWatcher (HackTheBox)
+- Voleur (HackTheBox)
