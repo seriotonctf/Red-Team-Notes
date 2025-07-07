@@ -1,3 +1,12 @@
+### Installation
+Using uv
+```
+uv tool install bloodyAD
+```
+Using pipx
+```
+pipx install bloodyAD
+```
 ### Retrieve User Information
 ```
 bloodyAD --host $dc -d $domain -u $username -p $password get object $target_username
