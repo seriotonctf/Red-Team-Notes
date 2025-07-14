@@ -99,7 +99,7 @@ bloodyAD --host $dc -d $domain -u $username -p $password -k set restore $user_to
 ```
 bloodyAD --host $dc -d $domain -u $username -p $password add computer $computer_name $computer_password
 ```
-### Add Resource Based Constraint Delegation
+### Add Resource Based Constrained Delegation
 ```
 bloodyAD --host $dc -d $domain -u $username -p $password add rbcd 'DELEGATE_TO$' 'DELEGATE_FROM$'
 ```
