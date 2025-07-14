@@ -95,6 +95,14 @@ bloodyAD --host $dc -d $domain -u $username -p $password -k get search -c 1.2.84
 ```
 bloodyAD --host $dc -d $domain -u $username -p $password -k set restore $user_to_restore
 ``` 
+### Create a new computer account
+```
+bloodyAD --host $dc -d $domain -u $username -p $password add computer $computer_name $computer_password
+```
+### Add Resource Based Constraint Delegation
+```
+bloodyAD --host $dc -d $domain -u $username -p $password add rbcd 'DELEGATE_TO$' 'DELEGATE_FROM$'
+```
 ### Notes
 - Pass `-k` to use kerberos authentication
 - You can pass a user hash instead of a password using `-p :hash` 
