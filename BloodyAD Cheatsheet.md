@@ -132,12 +132,12 @@ bloodyAD --host $dc -d $domain -u $username -p $password get search --filter '(s
 - https://0xdf.gitlab.io/2024/03/30/htb-rebound.html
 - https://0xdf.gitlab.io/2025/04/26/htb-vintage.html
 - https://www.thehacker.recipes/
-### Machines To Practice
-- Redelegate (Vulnlab)
-- Vintage (HackTheBox)
-- Infiltrator (HackTheBox)
-- Rebound (HackTheBox)
-- Absolute (HackTheBox)
-- Certified (HackTheBox)
-- TombWatcher (HackTheBox)
-- Voleur (HackTheBox)
+### Machines To Practice (HackTheBox)
+- Redelegate
+- Vintage
+- Infiltrator
+- Rebound
+- Absolute
+- Certified
+- TombWatcher
+- Voleur
