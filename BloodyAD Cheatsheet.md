@@ -141,3 +141,4 @@ bloodyAD --host $dc -d $domain -u $username -p $password get search --filter '(s
 - Certified
 - TombWatcher
 - Voleur
+- PingPong
